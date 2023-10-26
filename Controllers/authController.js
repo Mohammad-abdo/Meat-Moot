@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const ApiError = require("../Utils/appError");
 const bcrypt = require("bcrypt");
 const {promisify}=require("util");
+const crypto = require("crypto");
 
 const setToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -13,6 +14,18 @@ const setToken = (id) => {
 const correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
+const createSendToken=(user,statusCode,res)=>{
+  const token = setToken(user._id)
+
+  res.status(statusCode).json({
+    status:"success",
+    token,
+    data:{
+      user:user
+    }
+  })
+
+}
 exports.SaveUser = catshAsync(async (req, res, next) => {
   console.log(req.body);
   const user = await User.create({
@@ -22,15 +35,15 @@ exports.SaveUser = catshAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
   });
   // const user =await User.create(req.body)
-  const token = setToken(user._id);
+  // const token = setToken(user._id);
 
-  res.status(200).json({
-    message: "success",
-    token,
-    data: { user: user },
-  });
+  // res.status(200).json({
+  //   message: "success",
+  //   token,
+  //   data: { user: user },
+  // });
+  createSendToken(user,200,res)
 });
-
 
 exports.signin = catshAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -43,12 +56,14 @@ exports.signin = catshAsync(async (req, res, next) => {
   if (!user || !(await correctPassword(password, user.password))) {
     next(new ApiError("UnCorrect Email & Password", 401));
   }
-  const token = setToken(user._id);
+  // const token = setToken(user._id);
 
-  res.status(201).json({
-    message: "success",
-    token: token,
-  });
+  // res.status(201).json({
+  //   message: "success",
+  //   token: token,
+  // });
+  createSendToken(user,201,res)
+
 });
 
 exports.protect = catshAsync(async (req, res, next) => {
@@ -63,30 +78,147 @@ exports.protect = catshAsync(async (req, res, next) => {
     return next(new ApiError("Yor are Not Loged in  ", 401));
   }
 
-  const decoded= await promisify(jwt.verify)(token,process.env.JWT_SECRET)
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  const exsistUser= await User.findById(decoded.id)
+  const exsistUser = await User.findById(decoded.id);
   console.log("decoded :=>", decoded);
-  if(!exsistUser){
-    return next(new ApiError("The User belonging to this Token  no longer exitst", 401));
+  if (!exsistUser) {
+    return next(
+      new ApiError("The User belonging to this Token  no longer exitst", 401)
+    );
   }
-  
- if(exsistUser.changedPasswordAfter(decoded.iat)){
-  return next(new ApiError("user Changed his password", 401));
- }
 
- req.user = exsistUser
- console.log("User => ",req.user);
+  if (exsistUser.changedPasswordAfter(decoded.iat)) {
+    return next(new ApiError("user Changed his password", 401));
+  }
+
+  req.user = exsistUser;
+  console.log("User => ", req.user);
   next();
 });
 
-exports.restrictTo=(...roles)=>{
-  return (req,res,next)=>{
-    if(!roles.includes(req.user.role)){
-      return next(new ApiError("Yor have no access to deleat this product  ", 403));
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ApiError("Yor have no access to deleat this product  ", 403)
+      );
     }
-    next()
+    next();
+  };
+};
+
+exports.forgetPassword = catshAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new AppError("there is no user with this email", 404));
   }
-}
+
+  const resetToken = user.createPasswordResetToken();
+  console.log("resetToken", resetToken);
+
+  await user.save({ validateBeforeSave: false });
+
+  // ============ 3 send Email packe to user =============
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/Users/resetPassword/${resetToken}`;
+  console.log(resetURL);
+  const message = `Forget your Password ?
+   Submit a PATCH request with your new Password and ConfirmPassword To : ${resetURL}. \n if didn't forget your password
+    . please ignore this message`;
+  try {
+    console.log(user.email);
+
+    await sendEmail({
+      email: user.email,
+      subject: "Your Password reset Token (valid for 10 minuts)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      messgae: "token send to Email",
+    });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpiresAt = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new ApiError(
+        "there wase an  Error Sending the Email , tray Again later",
+        500
+      )
+    );
+  }
+});
+
+exports.resetPassword = catshAsync(async (req, res, next) => {
+  console.log("Start");
+  // Get your Based in the Toeken
+  const hasedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+    console.log("Start");
+  const user = await User.findOne({
+    passwordResetToken: hasedToken,
+    passwordResetTokenExpiresAt: { $gt: Date.now() },
+  });
+  console.log(user.email);
+  // if Token has no expired,and there is user, set the new password
+  if (!user) {
+    return next(new ApiError("Tokenl is invalid or Expired", 400));
+  }
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpiresAt = undefined;
+  await user.save();
+  
+  console.log(user);
+  // const token = setToken(user._id);
+
+  // res.status(200).json({
+  //   message: "success",
+  //   token: token,
+  // });
+  createSendToken(user,200,res)
+
+  next()
+});
+
+
+exports.updatePassword=catshAsync(async (req,res,next)=>{
+  // 1 = get user from DB
+  const user = await User.findOne(req.body.id).select("+passeord")
+
+  // 2=  ckeck if the posted password is correct
+
+  if(! await correctPassword(req.body.confirmPassword, user?.password)){
+    return next(new ApiError("your current passsword is rong",401))
+  }
+  // chang password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  createSendToken(user,200,res)
+})
+
+
+exports.updateMe= catshAsync( async(req,res,next)=>{
+  // find user 
+  const user =await User.findById(req.body.id)
+  if(!user){
+    return next(new ApiError("ypur ar not loged in ",401))
+  }
+
+  user.name=req.body.name
+  user.email=req.body.email
+  user.save()
+  createSendToken(user,200,res)
+})
 
 
