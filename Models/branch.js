@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+const mongoose =require('mongoose')
 const branchSchem = new mongoose.Schema({
   name: {
     type: String,
@@ -9,7 +8,7 @@ const branchSchem = new mongoose.Schema({
     type: String,
     required: [true,'Branch Must have address'],
   },
-  imgages:[String],
+  imgaes:[String],
   offers: {
     type: mongoose.SchemaTypes.ObjectId,
     ref:"offer"
@@ -61,4 +60,4 @@ country:{
 
 const branch= mongoose.model("branch",branchSchem)
 
-module.exports = branch
+module.exports =branch
