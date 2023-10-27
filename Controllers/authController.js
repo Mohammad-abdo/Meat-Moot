@@ -14,18 +14,25 @@ const setToken = (id) => {
 const correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
-const createSendToken=(user,statusCode,res)=>{
-  const token = setToken(user._id)
+const createSendToken = (user, statusCode, res) => {
+  const token = setToken(user._id);
+  const cookieOptions={
+    expires:new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE_IN  * 24 * 60 * 60 * 1000 ),
+    // secure:true,
+    httpOnly:true
+  }
+
+  // if((process.env.NODE_ENV == "production")) cookieOptions.secure=true; 
+  res.cookie("jwt",token,cookieOptions)
 
   res.status(statusCode).json({
-    status:"success",
+    status: "success",
     token,
-    data:{
-      user:user
-    }
-  })
-
-}
+    data: {
+      user: user,
+    },
+  });
+};
 exports.SaveUser = catshAsync(async (req, res, next) => {
   console.log(req.body);
   const user = await User.create({
@@ -42,7 +49,7 @@ exports.SaveUser = catshAsync(async (req, res, next) => {
   //   token,
   //   data: { user: user },
   // });
-  createSendToken(user,200,res)
+  createSendToken(user, 200, res);
 });
 
 exports.signin = catshAsync(async (req, res, next) => {
@@ -62,8 +69,7 @@ exports.signin = catshAsync(async (req, res, next) => {
   //   message: "success",
   //   token: token,
   // });
-  createSendToken(user,201,res)
-
+  createSendToken(user, 201, res);
 });
 
 exports.protect = catshAsync(async (req, res, next) => {
@@ -163,7 +169,7 @@ exports.resetPassword = catshAsync(async (req, res, next) => {
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
-    console.log("Start");
+  console.log("Start");
   const user = await User.findOne({
     passwordResetToken: hasedToken,
     passwordResetTokenExpiresAt: { $gt: Date.now() },
@@ -178,7 +184,7 @@ exports.resetPassword = catshAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetTokenExpiresAt = undefined;
   await user.save();
-  
+
   console.log(user);
   // const token = setToken(user._id);
 
@@ -186,39 +192,49 @@ exports.resetPassword = catshAsync(async (req, res, next) => {
   //   message: "success",
   //   token: token,
   // });
-  createSendToken(user,200,res)
+  createSendToken(user, 200, res);
 
-  next()
+  next();
 });
 
-
-exports.updatePassword=catshAsync(async (req,res,next)=>{
+exports.updatePassword = catshAsync(async (req, res, next) => {
   // 1 = get user from DB
-  const user = await User.findOne(req.body.id).select("+passeord")
+  const user = await User.findById(req.user.id).select("+passeord");
+  const { email, password } = user;
+  const user1 = await User.findOne({ email }).select("+password");
 
+  console.log("user1 ID =>", user1.id);
+  console.log("user1 password =>", user1.password);
   // 2=  ckeck if the posted password is correct
-
-  if(! await correctPassword(req.body.confirmPassword, user?.password)){
-    return next(new ApiError("your current passsword is rong",401))
+  console.log(req.body.curentPassword);
+  if (!(await correctPassword(req.body.curentPassword, user1.password))) {
+    return next(new ApiError("your current passsword is rong", 401));
   }
+
   // chang password
   user.password = req.body.password;
   user.confirmPassword = req.body.confirmPassword;
-  createSendToken(user,200,res)
-})
 
+  user.save();
 
-exports.updateMe= catshAsync( async(req,res,next)=>{
-  // find user 
-  const user =await User.findById(req.body.id)
-  if(!user){
-    return next(new ApiError("ypur ar not loged in ",401))
-  }
+  // createSendToken(user,200,res)
+  res.status(201).json({
+    status: "success",
+    token,
+    message: "Password Updated Successfyly",
+  });
+});
 
-  user.name=req.body.name
-  user.email=req.body.email
-  user.save()
-  createSendToken(user,200,res)
-})
+// exports.updateMe = catshAsync(async (req, res, next) => {
+//   // find user
+//   const user = await User.findById(req.body.id);
+//   if (!user) {
+//     return next(new ApiError("ypur ar not loged in ", 401));
+//   }
 
+//   user.name = req.body.name;
+//   user.email = req.body.email;
+//   user.save();
+//   createSendToken(user, 200, res);
+// });
 
