@@ -54,7 +54,14 @@ const UsersSchema = new mongoose.Schema({
   },
 });
 
+UsersSchema.pre(/^find/,function(next){
+  if (!Users.disablePreHook) {
+    this.find({ active: { $ne: false } });
+  }
 
+
+  next()
+})
 UsersSchema.pre("save",function(next){
 
   if(!this.isModified("password") || this.isNew) return next()
