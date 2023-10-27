@@ -7,8 +7,13 @@ const dotenv = require("dotenv");
 // @ts-ignore
 const UserSchema = require("./Router/UserRouter");
 const MeatSchema = require("./Router/MeatRouter");
+<<<<<<< HEAD
 const BranchSchema = require("./Router/MyBranchRouter");
 const xss = require("xss-clean");
+=======
+const branchschema=require("./Router/BranchRouter")
+
+>>>>>>> 0eb325bbeda45ef0e6897023ec052b43a81ca721
 const AppError = require("./Utils/appError");
 const GlobalErrorHandeler = require("./Controllers/errorController");
 
@@ -56,7 +61,13 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/Branch",BranchSchema);
 app.use("/api/v1/Users", UserSchema);
+<<<<<<< HEAD
 app.use("/api/v1/Meats",MeatSchema);
+=======
+// Use the MoviesSchema router
+app.use("/api/v1/Meats",MeatSchema)
+app.use("api/v1/branch",branchschema)
+>>>>>>> 0eb325bbeda45ef0e6897023ec052b43a81ca721
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Cant Find ${req.originalUrl} on this Server`, 404));
