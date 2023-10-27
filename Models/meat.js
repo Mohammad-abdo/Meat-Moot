@@ -9,10 +9,10 @@ const MeatSchem = new mongoose.Schema({
     type: String,
     required: true,
   },
-  img: { 
-    type: String, 
-    required: true 
-},
+  images: {
+    type: [String],
+    required: true,
+  },
   rate: {
     type: Number,
     default:0 

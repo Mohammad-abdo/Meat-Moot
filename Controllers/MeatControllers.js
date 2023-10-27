@@ -1,6 +1,57 @@
 const meat = require("../Models/meat");
 const { query } = require("express");
 const ApiFeatures = require("../Utils/apiFeatures.js");
+const multer=require("multer")
+const ApiError = require("../Utils/appError");
+const sharp = require("sharp");
+const multerStorage= multer.memoryStorage()
+const multerFilter=(req,file,cb)=>{
+if(file.mimetype.strartWith("image")){
+  cb(null,true)
+}else{
+  cb(new ApiError("not An images, please upload only images",400),false)
+}
+}
+
+const upload=multer({
+  storage:multerStorage,
+  fileFilter: multerFilter,
+})
+
+exports.uploadHouseImages = upload.array("images", 20);
+
+exports.resizeHouseImages = async (req, res, next) => {
+  if (!req.files || req.files.length === 0) return next();
+
+  req.body.images = [];
+
+  req.files.forEach(async (file) => {
+    const filename = `meat-${Date.now()}${Math.random() * 1000}.jpeg`;
+
+    sharp(file.buffer)
+      .resize(750, 500)
+      .toFormat("jpeg")
+      .jpeg({ quality: 90 })
+      .toFile(`public/images/meat/${filename}`);
+
+    req.body.images.push(filename);
+  });
+
+  next();
+};
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, '/absolute/path/to/your/public/images/meat');
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, `${Date.now()}_${file.originalname}`);
+//   }
+// });
+
+// const upload = multer({ storage });
+
+// exports.upload = upload.single("file");
 
 exports.Savemeat = async function (req, res) {
   try {

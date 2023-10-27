@@ -54,14 +54,7 @@ const UsersSchema = new mongoose.Schema({
   },
 });
 
-UsersSchema.pre(/^find/,function(next){
-  if (!Users.disablePreHook) {
-    this.find({ active: { $ne: false } });
-  }
 
-
-  next()
-})
 UsersSchema.pre("save",function(next){
 
   if(!this.isModified("password") || this.isNew) return next()
@@ -81,7 +74,14 @@ UsersSchema.pre("save", async function (next) {
   next();
 });
 
+UsersSchema.pre(/^find/,function(next){
+  if (!Users.disablePreHook) {
+    this.find({ active: { $ne: false } });
+  }
 
+
+  next()
+})
 
 UsersSchema.methods.validatePassword = async function (checkedPassword) {
   return await bcrypt.compare(checkedPassword, this.password);
@@ -115,7 +115,17 @@ UsersSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
+// UsersSchema.methods.createPasswordResetToken = function () {
+//   const restToken = crypto.randomBytes(32).toString("hex");
 
+//   this.passwordResetToken = crypto
+//     .createHash("sha256")
+//     .update(restToken)
+//     .digest("hex");
+
+//     console.log(`${restToken}`,`${this.passwordResetToken}`);
+//   this.passwordResetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
+// };
 const Users = mongoose.model("users", UsersSchema);
 
 module.exports = Users;

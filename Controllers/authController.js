@@ -1,11 +1,10 @@
 const User = require("../Models/user");
 const catshAsync = require("../Utils/catshAsync");
-const jwt = require("jsonwebtoken");
 const ApiError = require("../Utils/appError");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const {promisify}=require("util");
 const crypto = require("crypto");
-
 const setToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE_IN,
@@ -21,6 +20,9 @@ const createSendToken = (user, statusCode, res) => {
     // secure:true,
     httpOnly:true
   }
+  res.cookie("token", token, cookieOptions);
+
+  user.password = undefined;
 
   // if((process.env.NODE_ENV == "production")) cookieOptions.secure=true; 
   res.cookie("jwt",token,cookieOptions)
@@ -42,14 +44,14 @@ exports.SaveUser = catshAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
   });
   // const user =await User.create(req.body)
-  // const token = setToken(user._id);
+  const token = setToken(user._id);
 
-  // res.status(200).json({
-  //   message: "success",
-  //   token,
-  //   data: { user: user },
-  // });
-  createSendToken(user, 200, res);
+  res.status(200).json({
+    message: "success",
+    token,
+    data: { user: user },
+  });
+  // createSendToken(user, 200, res);/
 });
 
 exports.signin = catshAsync(async (req, res, next) => {
@@ -225,16 +227,15 @@ exports.updatePassword = catshAsync(async (req, res, next) => {
   });
 });
 
-// exports.updateMe = catshAsync(async (req, res, next) => {
-//   // find user
-//   const user = await User.findById(req.body.id);
-//   if (!user) {
-//     return next(new ApiError("ypur ar not loged in ", 401));
-//   }
+exports.updateMe = catshAsync(async (req, res, next) => {
+  // find user
+  const user = await User.findById(req.body.id);
+  if (!user) {
+    return next(new ApiError("ypur ar not loged in ", 401));
+  }
 
-//   user.name = req.body.name;
-//   user.email = req.body.email;
-//   user.save();
-//   createSendToken(user, 200, res);
-// });
-
+  user.name = req.body.name;
+  user.email = req.body.email;
+  user.save();
+  createSendToken(user, 200, res);
+});
