@@ -19,11 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-<<<<<<< HEAD
     "express-mongo-sanitize": "^2.2.0",
-=======
-    "express-async-handler": "^1.2.0",
->>>>>>> 0eb325bbeda45ef0e6897023ec052b43a81ca721
     "express-rate-limit": "^7.1.3",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
