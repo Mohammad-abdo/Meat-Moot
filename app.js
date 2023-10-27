@@ -10,8 +10,19 @@ const MeatSchema = require("./Router/MeatRouter");
 
 const AppError = require("./Utils/appError");
 const GlobalErrorHandeler = require("./Controllers/errorController");
+
+const rateLimit =require("express-rate-limit")
+
 dotenv.config({ path: "./config.env" });
 app.use(express.json());
+
+const limiter= rateLimit({
+  max:100,
+  windowMs:60 * 60 * 1000,
+  message:"To Many Request For this Api ,Please Tray Again in an hour"
+})
+
+app.use("/api",limiter)
 
 const morgan = require("morgan");
 const cors = require("cors");
