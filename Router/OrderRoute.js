@@ -23,4 +23,6 @@ router.route("/").get(OrderController.GetAllOrders);
   .route("/:id")
   .get(OrderController.GetMyOrderByUserId)
   .get(OrderController.GetMyOrderByMeatId)
+  .patch(OrderController.CanselOrder)
+
 module.exports = router;

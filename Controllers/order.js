@@ -28,7 +28,7 @@ exports.GetAllOrders = catshAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: "success",
-        lenght:MyOrders.length,
+        lenght:orders.length,
         data: {
             orders: orders
         }
@@ -52,6 +52,7 @@ exports.GetMyOrderByUserId = catshAsync(async (req, res, next) => {
 });
 
 exports.GetMyOrderByMeatId = catshAsync(async (req, res, next) => {
+
     const MyOrders = await Order.find({ id: req.params.meatId });
 
     if (!MyOrders) {
@@ -68,9 +69,10 @@ exports.GetMyOrderByMeatId = catshAsync(async (req, res, next) => {
 });
 
 exports.CanselOrder=catshAsync(async(req,res,next)=>{
-    const MyOrder= await Order.findByIdAndDelete(req.params.userId)
+const MyOrders = await Order.find({ id: req.params.meatId });
+    const MyOrder= await Order.findOneAndDelete( req.params.userID )
     if (!MyOrder) {
-        return next(new ApiError("There are no orders yet", 401))
+        return next(new ApiError("cant cansel order", 401))
     }
     res.status(200).json({
         status: "success",
