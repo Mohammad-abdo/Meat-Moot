@@ -32,7 +32,7 @@ exports.resizeHouseImages = async (req, res, next) => {
       .resize(750, 500)
       .toFormat("jpeg")
       .jpeg({ quality: 90 })
-      .toFile(`public/images/meat/${filename}`);
+      .toFile(`public/img/meat/${filename}`);
 
     req.body.images.push(filename);
   });

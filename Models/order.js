@@ -5,23 +5,27 @@ const OredrSchema= new mongoose.Schema({
 
     userId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "user",
+        ref: "users",
+        required: true
       },
-      meatId: {
+      meatId:{
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "house",
+        ref: "meat",
+        require: true,
       },
       branchId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref:"branch"
+        ref:"myBranch",
+        required: true,
+
       },   
-      ordDate:{
+      orderDate:{
         type: Date,
-        require: true,
+        required: true,
       },
        price: {
         type: Number,
-        require: true,
+        required: true,
       },
 
 },{
@@ -29,16 +33,21 @@ const OredrSchema= new mongoose.Schema({
 })
 
 OredrSchema.pre(/^find/,function(next){
+  // this.populate("users",["name"])
     this.populate({
-        path:"userTd",
+        path:"userId",
         select:"name"
-    }).populate({
-        path:"branchId",
-        select:"name address"
-    }).populate({
-        path:"meatId",
-        select:"name price img"
     })
+    this.populate({
+        path:"branchId",
+        select:"name"
+    })
+    this.populate({
+        path:"meatId",
+        select:["name", "price" ,"img"]
+        // select:"name"
+    })
+    next()
 })
 
 
