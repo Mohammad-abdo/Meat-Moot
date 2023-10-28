@@ -7,11 +7,12 @@ const dotenv = require("dotenv");
 // @ts-ignore
 const UserSchema = require("./Router/UserRouter");
 const MeatSchema = require("./Router/MeatRouter");
-const BranchSchema = require("./Router/MyBranchRouter");
+const ReviweSchema=require("./Router/ReviwsRouter")
+// const BranchSchema = require("./Router/MyBranchRouter");
 const xss = require("xss-clean");
 const AppError = require("./Utils/appError");
 const GlobalErrorHandeler = require("./Controllers/errorController");
-
+const BranchSchema=require('./Router/BranchRouter')
 const rateLimit =require("express-rate-limit")
 const helmet =require("helmet")
 
@@ -57,6 +58,7 @@ app.use((req, res, next) => {
 app.use("/api/v1/Branch",BranchSchema);
 app.use("/api/v1/Users", UserSchema);
 app.use("/api/v1/Meats",MeatSchema);
+app.use("/api/v1/Reviwes",ReviweSchema);
 // Use the MoviesSchema router
 
 

@@ -51,11 +51,7 @@ country:{
 },{
     timestamps:true
 },
-// @ts-ignore
-{
-    toJSON:{virtuals:true},
-    toOject:{virtuals:true},
-});
+);
 
 
 const branch= mongoose.model("branch",branchSchem)
