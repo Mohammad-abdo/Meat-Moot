@@ -6,7 +6,7 @@ exports.saveBranch=async function(req,res){
   
  try {
   const newBranch =await branch.create(req.body)
-  resstatus(200).json({status:"success",data:{branch:newBranch}})
+  res.status(200).json({status:"success",data:{branch:newBranch}})
  } catch (error) {
   res
   .status(404)

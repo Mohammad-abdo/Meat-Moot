@@ -1,18 +1,22 @@
-import { populate } from "dotenv";
-import mongoose from "mongoose";
+const mongoose =require('mongoose')
 const validate= require ("validator")
 const rivewSchem = new mongoose.Schema({
-  meatID: {
+  meatId: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"meat"
+    ref:"meat",
+    require: true
+
   },
   branchId: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"branch"
+    ref:"branch",
+    require: true
+
   },
   userId: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref: "user",
+    ref: "users",
+    require: true
   },
   rate: {
     type: Number,
@@ -30,14 +34,23 @@ const rivewSchem = new mongoose.Schema({
     timestamps:true
 },
 );
-rivewSchem.pre(/^find/,function(next){
- this.populate({
-    path: "userId branchId",
-    select: "name",
+
+rivewSchem.pre(/^find/, function(next) {
+  this.populate({
+    path:"meatId",
+    select:["name", "images"]
   });
-  next()
-})
+  this.populate({
+    path:"branchId",
+    select:["name","address" ]
+  });
+  this.populate({
+    path:"userId",
+    select:["name","email"]
+  });
+  next();
+});
 
-const rivew= mongoose.model("rivew",rivewSchem)
+const rivews= mongoose.model("rivews",rivewSchem)
 
-module.exports = rivew
+module.exports =rivews
