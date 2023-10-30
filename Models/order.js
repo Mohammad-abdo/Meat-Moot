@@ -32,6 +32,19 @@ const OredrSchema= new mongoose.Schema({
     timestamps:true
 })
 
+
+OredrSchema.post("save", async function(){
+
+ await Order.aggregate([
+  {
+    $group:{
+      _id:this.orderDate,
+      count:{$sum:this.price}
+    }
+  }
+])
+
+})
 OredrSchema.pre(/^find/,function(next){
   // this.populate("users",["name"])
     this.populate({
