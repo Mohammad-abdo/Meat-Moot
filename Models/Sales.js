@@ -7,10 +7,14 @@ const SalesSchema= new mongoose.Schema({
         type:mongoose.SchemaTypes.ObjectId,
         ref:"branch"
     },
-    sales:{
-        type:Number,
-       required:[true,"All Branches Have Sales"]
+    salesDate:{
+        type:Date
     },
+    Salearnings:Number,
+    daySales:Number,
+    weekSales:Number,
+    monthSales:Number,
+    yearSales:Number,
     
 },{
     timestamps:true
@@ -20,9 +24,9 @@ SalesSchema.pre(/^find/,function(next){
 
     this.populate({
         path:"branchId",
-        select:'-__v'
+        select:'name'
     })
-
+    next()
 })
 
 

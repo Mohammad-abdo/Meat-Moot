@@ -53,7 +53,6 @@ country:{
     required:[true,'Branch Must have Country']
 },
 
-
 },{
     timestamps:true
 },
