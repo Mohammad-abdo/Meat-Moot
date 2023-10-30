@@ -1,6 +1,8 @@
 const ApiFeatures=require('../Utils/apiFeatures.js')
 const asyncHandler = require('express-async-handler');
-const branch = require('../Models/branch.js') 
+const branch = require('../Models/branch.js'); 
+const Offer = require('../Models/offer')
+const catshAsync = require('../Utils/catshAsync.js');
 
 exports.saveBranch=async function(req,res){
   
@@ -72,6 +74,23 @@ exports.deleteBranch = async function (req, res) {
     });
   }
 };
+
+
+exports.GettAllBranchOffers=catshAsync(async(req,res,next)=>{
+
+  const branchOffers=await branch.find({offerId:req.params.id})
+  if(!branchOffers){
+    return next(new ApiFeatures("this branch has no offer",404))
+  }
+
+  res.status(202).json({
+    status:"success",
+    data:{
+      offers:branchOffers
+    }
+  })
+
+})
 
 exports.updateBranch = async function (req, res) {
   try {

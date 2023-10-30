@@ -1,4 +1,5 @@
 const mongoose =require('mongoose')
+
 const branchSchem = new mongoose.Schema({
   name: {
     type: String,
@@ -9,7 +10,7 @@ const branchSchem = new mongoose.Schema({
     required: [true,'Branch Must have address'],
   },
   imgaes:[String],
-  offers: {
+  offerId: {
     type: mongoose.SchemaTypes.ObjectId,
     ref:"offer"
    },
@@ -43,16 +44,30 @@ region:{
     },
     default:'Africa'
 },
+contactInfo:{
+    Phone:String,
+    email:String
+},
 country:{
     type:String,
     required:[true,'Branch Must have Country']
-}
+},
+
 
 },{
     timestamps:true
 },
 );
+branchSchem.pre(/^find/,function(next){
 
+    this.populate({
+        path:"offerId",
+        select:["offerStart","offerEnd","branchId","sal","offerInfo",'images']
+    })
+
+
+    next()
+})
 
 const branch= mongoose.model("branch",branchSchem)
 

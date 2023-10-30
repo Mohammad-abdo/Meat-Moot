@@ -15,7 +15,7 @@ const OredrSchema= new mongoose.Schema({
       },
       branchId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref:"myBranch",
+        ref:"branch",
         required: true,
 
       },   

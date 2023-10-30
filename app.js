@@ -8,15 +8,17 @@ const dotenv = require("dotenv");
 const UserSchema = require("./Router/UserRouter");
 const MeatSchema = require("./Router/MeatRouter");
 const ReviweSchema=require("./Router/ReviwsRouter")
-// const BranchSchema = require("./Router/MyBranchRouter");
-const xss = require("xss-clean");
 const branchschema=require("./Router/BranchRouter")
 const OrdersSchema = require("./Router/OrderRoute");
+const BranchSchema=require('./Router/BranchRouter')
+const OffersSchema = require("./Router/OfferRouter");
+
+
 const AppError = require("./Utils/appError");
 const GlobalErrorHandeler = require("./Controllers/errorController");
-const BranchSchema=require('./Router/BranchRouter')
 const rateLimit =require("express-rate-limit")
 const helmet =require("helmet")
+const xss = require("xss-clean");
 
 dotenv.config({ path: "./config.env" });
 
@@ -61,10 +63,9 @@ app.use("/api/v1/Branch",BranchSchema);
 app.use("/api/v1/Users", UserSchema);
 app.use("/api/v1/Meats",MeatSchema);
 app.use("/api/v1/Reviwes",ReviweSchema);
-// Use the MoviesSchema router
-// app.use("/api/v1/Meats",MeatSchema)
 app.use("api/v1/branch",branchschema)
 app.use("/api/v1/Orders",OrdersSchema);
+app.use("/api/v1/Offers",OffersSchema);
 
 
 app.all("*", (req, res, next) => {
