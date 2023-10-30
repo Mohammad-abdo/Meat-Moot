@@ -36,7 +36,7 @@ exports.GetAllOrders = catshAsync(async (req, res, next) => {
 });
 
 exports.GetMyOrderByUserId = catshAsync(async (req, res, next) => {
-    const MyOrders = await Order.find({ userID: req.params.userID });
+    const MyOrders = await Order.find({ userId: req.params.userId });
 
     if (!MyOrders) {
         return next(new ApiError("There are no orders yet", 401))

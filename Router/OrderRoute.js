@@ -23,7 +23,7 @@ router.route("/").get(OrderController.GetAllOrders);
   .route("/:id")
 .patch(OrderController.CanselOrder)
 
-  router.route("/user/:userID").get(OrderController.GetMyOrderByUserId)
+  router.route("/user/:userId").get(OrderController.GetMyOrderByUserId)
   router.route("/meat/:meatId").get(OrderController.GetMyOrderByMeatId)
 
 module.exports = router;
