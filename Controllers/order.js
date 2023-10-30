@@ -4,10 +4,10 @@ const ApiError = require("../Utils/appError");
 
 
 exports.creatOrder = catshAsync(async (req, res, next) => {
-    const { userId, id,meatId, branchId, orderDate, price } = req.body;
+    const { userId, id,meatId, branchId, orderDate, price,addsId } = req.body;
 
     try {
-        const order = await Order.create({_id:id, userId, meatId, branchId, orderDate, price });
+        const order = await Order.create({_id:id, userId, meatId, branchId, orderDate, price ,addsId});
 
         res.status(200).json({
             status: "success",

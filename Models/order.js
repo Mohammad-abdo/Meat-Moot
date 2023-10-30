@@ -13,6 +13,12 @@ const OredrSchema= new mongoose.Schema({
         ref: "meat",
         require: true,
       },
+      addsId:{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "adds",
+        require: true,
+        
+      },
       branchId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref:"branch",
@@ -58,6 +64,11 @@ OredrSchema.pre(/^find/,function(next){
     this.populate({
         path:"meatId",
         select:["name", "price" ,"img"]
+        // select:"name"
+    })
+    this.populate({
+        path:"addsId",
+        select:["sauces", "salads" ,"rice","beverages"]
         // select:"name"
     })
     next()

@@ -13,6 +13,7 @@ const OrdersSchema = require("./Router/OrderRoute");
 const BranchSchema=require('./Router/BranchRouter')
 const OffersSchema = require("./Router/OfferRouter");
 const SalesSchema = require("./Router/Sales.Router");
+const AddsSchema = require("./Router/AddsRouter");
 
 
 const AppError = require("./Utils/appError");
@@ -68,6 +69,7 @@ app.use("api/v1/branch",branchschema)
 app.use("/api/v1/Orders",OrdersSchema);
 app.use("/api/v1/Offers",OffersSchema);
 app.use("/api/v1/Sales",SalesSchema);
+app.use("/api/v1/Adds",AddsSchema);
 
 
 app.all("*", (req, res, next) => {
