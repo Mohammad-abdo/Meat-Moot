@@ -10,4 +10,6 @@ router.route('/:id')
    .get(BranchController.getBranch)
    .delete(BranchController.deleteBranch)
 
+   router.route('/offer/:offerId').get(BranchController.GettAllBranchOffers)
+
 module.exports = router
