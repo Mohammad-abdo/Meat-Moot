@@ -86,6 +86,7 @@ console.log(singleReviwe.length);
   }
 
 }
+
 exports.getReviwesById = async (req, res) => {
   try {
     const singleReviwe = await Reviw.findById(req.params.id)
@@ -105,6 +106,7 @@ exports.getReviwesById = async (req, res) => {
   }
 
 }
+
 exports.updateReviwesById = async (req, res) => {
   const { id } = req.params;
   const newData = req.body;
@@ -113,12 +115,13 @@ exports.updateReviwesById = async (req, res) => {
     res.status(201).json({ data: updatedData });
 
   } catch (error) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: error.message });
 
   }
 
 
 }
+
 exports.deleteReviwesById = async (req, res) => {
   try {
     const deleteReviwe = await Reviw.findByIdAndDelete(id, { delete: true });
@@ -126,7 +129,7 @@ exports.deleteReviwesById = async (req, res) => {
 
 
   } catch (error) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: error.message });
 
   }
 }

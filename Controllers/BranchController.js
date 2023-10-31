@@ -1,5 +1,4 @@
 const ApiFeatures=require('../Utils/apiFeatures.js')
-const asyncHandler = require('express-async-handler');
 const branch = require('../Models/branch.js'); 
 const Offer = require('../Models/offer')
 const catshAsync = require('../Utils/catshAsync.js');
