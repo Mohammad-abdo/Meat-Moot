@@ -46,7 +46,7 @@ exports.GetMyOrderByUserId = catshAsync(async (req, res, next) => {
         status: "success",
         lenght:MyOrders.length,
         data: {
-            Order: MyOrders
+            Orders: MyOrders
         }
     });
 });

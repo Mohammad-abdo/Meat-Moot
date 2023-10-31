@@ -5,7 +5,7 @@ const ApiError = require("../Utils/appError");
 
 exports.GetAllBranchOrder = catshAsync(async (req, res, next) => {
   const allOrders = await Order.find({ branchId: req.params.branchId });
-  // const price=allOrders.price
+
   const clacSumOrders = await Order.aggregate([
     {
       $group: {
