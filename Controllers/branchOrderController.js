@@ -1,13 +1,13 @@
-const Order = require("../Models/order"); // Import the Order model
+const Order = require("../Models/BranchOrder"); // Import the Order model
 const catshAsync = require("../Utils/catshAsync");
 const ApiError = require("../Utils/appError");
 
 
 exports.creatOrder = catshAsync(async (req, res, next) => {
-    const { userId, id,meatId, branchId, orderDate, price,addsId } = req.body;
+    const {  id,meatId, branchId, orderDate, totalPrice,addsId,customerNmme,address } = req.body;
 
     try {
-        const order = await Order.create({_id:id, userId, meatId, branchId, orderDate, price ,addsId});
+        const order = await Order.create({_id:id, meatId, branchId, orderDate, totalPrice ,addsId,customerNmme,address });
 
         res.status(200).json({
             status: "success",
@@ -35,22 +35,21 @@ exports.GetAllOrders = catshAsync(async (req, res, next) => {
     });
 });
 
-exports.GetMyOrderByUserId = catshAsync(async (req, res, next) => {
-    const MyOrders = await Order.find({ userId: req.params.userId });
+exports.GetMyOrderById = catshAsync(async (req, res, next) => {
+    const MyOrder = await Order.findById(req.params.id);
 
 
   
-   console.log(MyOrders);
-    if (!MyOrders) {
+   console.log(MyOrder);
+    if (!MyOrder) {
         return next(new ApiError("There are no orders yet", 401))
     }
 
     res.status(200).json({
         status: "success",
         // price:pric,
-        lenght:MyOrders.length,
         data: {
-            Orders: MyOrders
+            Orders: MyOrder
         }
     });
 });
@@ -75,7 +74,7 @@ exports.GetMyOrderByMeatId = catshAsync(async (req, res, next) => {
 });
 
 exports.CanselOrder=catshAsync(async(req,res,next)=>{
-    const MyOrder= await Order.findOneAndDelete( req.params.userID )
+    const MyOrder= await Order.findByIdAndDelete( req.params.id )
     if (!MyOrder) {
         return next(new ApiError("cant cansel order", 401))
     }
